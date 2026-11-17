@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="app-version" content="2.0.0">
+<meta name="app-version" content="2.1.0">
 <meta name="theme-color" content="#041231">
 <title>Fotos Desafío Azul 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2446,7 +2446,7 @@ a.btn{text-decoration:none;color:#fff}
     <section id="upForm">
       <div class="card">
         <h2 class="disp">Compartí <em>tus fotos</em></h2>
-        <p>Elegí la jornada y subí tus fotos o videos. El Departamento los revisa y arma el álbum de la semana.</p>
+        <p>Elegí la jornada y subí tus fotos o videos. Aparecen al instante en el álbum, donde todos pueden verlos y descargarlos.</p>
         <div>
           <div class="lbl" style="margin-bottom:8px">Jornada</div>
           <div class="days" id="days"></div>
@@ -2601,7 +2601,7 @@ $('#bSend').onclick=async()=>{
   if(bad){ toast(ok?`${ok} enviados · ${bad} con error: tocá Enviar para reintentar`:'No se pudieron enviar. Revisá la conexión y tocá Enviar de nuevo.',4500); return; }
   const total=queue.filter(q=>q.state==='done').length;
   $('#upForm').hidden=true; $('#upMsg').hidden=false;
-  $('#upMsg').innerHTML=`<div class="big">✓</div><h2 class="disp" style="font-size:36px">¡Gracias!</h2><p>${total===1?'Recibimos tu archivo':'Recibimos tus '+total+' archivos'} de <b>${esc(JN[jornada])}</b>.</p><p style="margin-top:6px;font-size:13px;color:var(--gris)">Cuando el Departamento los apruebe, aparecen en el álbum.</p><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px"><button class="btn pri" id="bMore" type="button">Subir más</button><button class="btn" id="bAlb" type="button">Ver el álbum</button></div>`;
+  $('#upMsg').innerHTML=`<div class="big">✓</div><h2 class="disp" style="font-size:36px">¡Gracias!</h2><p>${total===1?'Recibimos tu archivo':'Recibimos tus '+total+' archivos'} de <b>${esc(JN[jornada])}</b>.</p><p style="margin-top:6px;font-size:13px;color:var(--gris)">Ya está en el álbum: en unos segundos lo ves en “Ver álbum”.</p><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px"><button class="btn pri" id="bMore" type="button">Subir más</button><button class="btn" id="bAlb" type="button">Ver el álbum</button></div>`;
   $('#bMore').onclick=()=>{ queue.splice(0).forEach(q=>q.thumbUrl&&URL.revokeObjectURL(q.thumbUrl)); renderQueue(); $('#upForm').hidden=false; $('#upMsg').hidden=true; };
   $('#bAlb').onclick=()=>setTab('album');
 };
@@ -2611,7 +2611,7 @@ let gal=[], galDia='', galShown=60, gvList=[], gvIdx=-1, galLoaded=0;
 function setTab(v){ document.querySelectorAll('.vt button').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===v)); $('#upTab').hidden=v!=='subir'; $('#upAlbum').hidden=v!=='album'; if(v==='album') loadAlbum(); }
 document.querySelectorAll('.vt button').forEach(b=>b.onclick=()=>setTab(b.dataset.v));
 async function loadAlbum(){
-  if(Date.now()-galLoaded<60000){ renderAlbum(); return; }
+  if(Date.now()-galLoaded<15000){ renderAlbum(); return; }
   try{ const r=await api({a:'lista',k:CLAVE}); if(!r.ok) throw 0; gal=r.items||[]; galLoaded=Date.now(); renderAlbum(); }
   catch(e){ $('#alInfo').textContent='No pudimos cargar el álbum. Revisá tu conexión.'; }
 }
@@ -2619,7 +2619,7 @@ function renderAlbum(){
   const counts={}; gal.forEach(f=>counts[f.j]=(counts[f.j]||0)+1);
   $('#alChips').innerHTML=`<button type="button" data-d="" aria-pressed="${!galDia}">Todas<em>${gal.length}</em></button>`+JORNADAS.filter(j=>counts[j.id]).map(j=>`<button type="button" data-d="${j.id}" aria-pressed="${galDia===j.id}">${j.d} · ${j.t}<em>${counts[j.id]}</em></button>`).join('');
   const L=gal.filter(f=>!galDia||f.j===galDia); gvList=L;
-  $('#alInfo').textContent = gal.length ? `${gal.length} ${gal.length===1?'archivo':'archivos'} de la semana. Tocá uno para verlo grande o descargarlo.` : 'Todavía no hay fotos publicadas. ¡Subí las tuyas y aparecen acá cuando el Departamento las apruebe!';
+  $('#alInfo').textContent = gal.length ? `${gal.length} ${gal.length===1?'archivo':'archivos'} de la semana. Tocá uno para verlo grande o descargarlo.` : 'Todavía no hay fotos. ¡Subí las tuyas y aparecen acá al instante!';
   $('#alGrid').innerHTML=L.slice(0,galShown).map((f,i)=>`<button type="button" data-i="${i}" aria-label="Ver" style="background-image:url('${thumb(f.id)}')">${f.v?'<span class="pl">▶</span>':''}</button>`).join('');
   $('#alMore').hidden=L.length<=galShown;
 }
